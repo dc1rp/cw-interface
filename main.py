@@ -4,7 +4,7 @@ from machine import Pin
 import time
 
 last_ms = 0
-DEBOUNCE_MS = 3
+DEBOUNCE_MS = 5
 
 keys = []
 prev_keys = [None]
@@ -21,9 +21,7 @@ def pin_callback(pin):
 
     keys.clear()
     
-    for pin, code in KEYS:
-        if pin.value() == 0:
-            keys.append(code)
+    [keys.append(code) for pin, code in KEYS if pin.value() == 0]
             
     if keys != prev_keys:
         k.send_keys(keys)
@@ -45,9 +43,10 @@ k = KeyboardInterface()
 usb.device.get().init(k, builtin_driver=True)
 
 while not k.is_open():
-    time.sleep(1)
+    time.sleep(.5)
 
 led.value(1)
 
 while True:
-    time.sleep(1)
+    time.sleep(.5)
+
