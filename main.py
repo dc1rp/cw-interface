@@ -38,21 +38,31 @@ KEYS = (
 
 [pin.init(Pin.IN, Pin.PULL_UP) for pin, _ in KEYS]
 
-if Pin(0).value() == 0 or Pin(1).value() == 0:
-    led.set(Color.BLUE)
-    print('Config Mode')
-else:
-    led.set(Color.RED)
+led.set(Color.RED)
+time.sleep(1)
 
-    [pin.irq(trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING, handler=pin_callback) for pin, _ in KEYS]
-    keyboard = KeyboardInterface()
-    usb.device.get().init(keyboard, builtin_driver=True)
+if Pin(0).value() == 0:
+    led.set(Color.CYAN)
+    config.dot_key = 0
+    config.minus_key = 1
+    config.save()
+    time.sleep(1)
+elif Pin(1).value() == 0:
+    led.set(Color.MAGENTA)
+    config.dot_key = 1
+    config.minus_key = 0
+    config.save()
+    time.sleep(1)
 
-    while not keyboard.is_open():
-        time.sleep(1)
+[pin.irq(trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING, handler=pin_callback) for pin, _ in KEYS]
+keyboard = KeyboardInterface()
+usb.device.get().init(keyboard, builtin_driver=True)
 
-    led.set(Color.GREEN)
+while not keyboard.is_open():
+    time.sleep(1)
 
-    while True:
-        time.sleep(.5)
+led.set(Color.GREEN)
+
+while True:
+    time.sleep(.5)
 
