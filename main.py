@@ -9,27 +9,16 @@ led = LED()
 config = Config.load()
 
 last_ms = 0
-keys = []
-prev_keys = [None]
 
 def pin_callback(pin):
     global last_ms
-    global keys
-    global prev_keys
     
     now = time.ticks_ms()
     if time.ticks_diff(now, last_ms) < config.debounce_ms:
         return
     last_ms = now
 
-    keys.clear()
-    
-    [keys.append(code) for pin, code in KEYS if pin.value() == 0]
-            
-    if keys != prev_keys:
-        keyboard.send_keys(keys)
-        prev_keys.clear()
-        prev_keys.extend(keys)
+    keyboard.send_keys([code for pin, code in KEYS if pin.value() == 0])
 
 KEYS = (
     (Pin(config.dot_key), KeyCode.DOT),
@@ -64,5 +53,5 @@ while not keyboard.is_open():
 led.set(Color.GREEN)
 
 while True:
-    time.sleep(.5)
+    time.sleep(1)
 
