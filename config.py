@@ -1,10 +1,12 @@
 import json
 
 class Config:
-    def __init__(self, debounce_ms = 5, dot_key = 0, minus_key = 1):
-        self.debounce_ms = debounce_ms
-        self.dot_key = 0
-        self.minus_key = 1
+    def __init__(self, dot_key = 3, minus_key = 2, poll_frequency=1000, in_1=2, in_2=3):
+        self.dot_key = dot_key
+        self.minus_key = minus_key
+        self.poll_frequency = poll_frequency
+        self.in_1 = in_1
+        self.in_2 = in_2
     
     def load():
         try:

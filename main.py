@@ -8,42 +8,30 @@ from config import Config
 led = LED()
 config = Config.load()
 
-last_ms = 0
-
-def pin_callback(pin):
-    global last_ms
-    
-    now = time.ticks_ms()
-    if time.ticks_diff(now, last_ms) < config.debounce_ms:
-        return
-    last_ms = now
-
-    keyboard.send_keys([code for pin, code in KEYS if pin.value() == 0])
-
 KEYS = (
-    (Pin(config.dot_key), KeyCode.DOT),
+    (Pin(config.dot_key),   KeyCode.DOT),
     (Pin(config.minus_key), KeyCode.KP_MINUS),
 )
 
-[pin.init(Pin.IN, Pin.PULL_UP) for pin, _ in KEYS]
+for pin, _ in KEYS:
+    pin.init(Pin.IN, Pin.PULL_UP)
 
 led.set(Color.RED)
 time.sleep(1)
 
-if Pin(0).value() == 0:
+if not Pin(config.in_1).value():
     led.set(Color.CYAN)
-    config.dot_key = 0
-    config.minus_key = 1
+    config.dot_key = config.in_1
+    config.minus_key = config.in_2
     config.save()
     time.sleep(1)
-elif Pin(1).value() == 0:
+elif not Pin(config.in_2).value():
     led.set(Color.MAGENTA)
-    config.dot_key = 1
-    config.minus_key = 0
+    config.dot_key = config.in_2
+    config.minus_key = config.in_1
     config.save()
     time.sleep(1)
 
-[pin.irq(trigger=machine.Pin.IRQ_RISING | machine.Pin.IRQ_FALLING, handler=pin_callback) for pin, _ in KEYS]
 keyboard = KeyboardInterface()
 usb.device.get().init(keyboard, builtin_driver=True)
 
@@ -53,5 +41,5 @@ while not keyboard.is_open():
 led.set(Color.GREEN)
 
 while True:
-    time.sleep(1)
-
+    time.sleep(1/config.poll_frequency)
+    keyboard.send_keys([code for p, code in KEYS if p.value() == 0])
